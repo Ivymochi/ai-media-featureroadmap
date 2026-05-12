@@ -400,19 +400,25 @@ async function fetchCSV(gid) {
 }
 
 function parseCSV(text) {
-  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
-  return lines.map(line => {
-    const fields = [];
-    let cur = "", inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
-      else if (c === ',' && !inQ) { fields.push(cur.trim()); cur = ""; }
-      else cur += c;
+  // 正確處理含換行的儲存格（Google Sheet 多行文字）
+  const rows = [];
+  let row = [], cur = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], nx = text[i + 1];
+    if (inQ) {
+      if (c === '"' && nx === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else { cur += c; } // 引號內的換行當作文字保留
+    } else {
+      if (c === '"') { inQ = true; }
+      else if (c === ',') { row.push(cur.trim()); cur = ""; }
+      else if (c === '\r' && nx === '\n') { row.push(cur.trim()); rows.push(row); row = []; cur = ""; i++; }
+      else if (c === '\r' || c === '\n') { row.push(cur.trim()); rows.push(row); row = []; cur = ""; }
+      else { cur += c; }
     }
-    fields.push(cur.trim());
-    return fields;
-  });
+  }
+  if (cur || row.length) { row.push(cur.trim()); if (row.some(f => f)) rows.push(row); }
+  return rows;
 }
 
 function parseLaunched(csv) {
