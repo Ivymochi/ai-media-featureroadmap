@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Media 2026 Feature Roadmap</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple: #7B4BB3;
+      --blue:   #4586B7;
+      --green:  #4BBFA9;
+      --red:    #FF7F7D;
+      --yellow: #F4B400;
+      --gray1:  #F6F6F6;
+      --gray2:  #DADADA;
+      --gray3:  #AEAEAE;
+      --gray4:  #888888;
+      --gray5:  #575757;
+      --gray6:  #28292D;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Inter", "Noto Sans TC", sans-serif;
+      background: var(--gray1);
+      color: var(--gray6);
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--purple);
+      color: white;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+
+    header h1 {
+      font-family: "Montserrat", "Noto Sans TC", sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .header-right {
+      margin-left: auto;
+      font-size: 11px;
+      opacity: 0.75;
+      white-space: nowrap;
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+
+    /* ── Stats ── */
+    .stats-row { display: flex; gap: 14px; margin-bottom: 28px; }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--gray2);
+      border-radius: 12px;
+      padding: 18px 20px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: "Montserrat", sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-label { font-size: 12px; color: var(--gray4); margin-top: 6px; }
+
+    /* ── Section card ── */
+    .section-card {
+      background: white;
+      border: 1px solid var(--gray2);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-family: "Montserrat", "Noto Sans TC", sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray6);
+      margin-bottom: 20px;
+    }
+
+    /* ══════════════════════════
+       TIMELINE
+    ══════════════════════════ */
+    .timeline-scroll { overflow-x: auto; padding-bottom: 4px; }
+
+    /* Outer wrapper — padding gives buffer so edge chips don't clip */
+    .tl-outer {
+      position: relative;
+      min-width: 880px;
+      padding: 0 52px;
+    }
+
+    /* Zones above and below the axis */
+    .tl-above-zone, .tl-below-zone {
+      position: relative;
+      height: 150px;
+    }
+
+    /* Horizontal axis */
+    .tl-axis-zone {
+      position: relative;
+      height: 26px;
+    }
+
+    .tl-axis-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0; /* Feb(0%) → Dec(100%), no trailing gap */
+      height: 2px;
+      background: var(--gray2);
+      z-index: 0;
+    }
+
+    /* Month tick group — absolutely positioned */
+    .tl-tick-group {
+      position: absolute;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .tl-tick { width: 1.5px; height: 7px; background: var(--gray3); }
+
+    .tl-month-lbl {
+      font-family: "Montserrat", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray5);
+      padding-top: 2px;
+      white-space: nowrap;
+    }
+
+    /* Chip positioned at proportional date on the axis */
+    .tl-chip-pos {
+      position: absolute;
+      transform: translateX(-50%);
+    }
+
+    .tl-above-zone .tl-chip-pos { bottom: 6px; }
+    .tl-below-zone .tl-chip-pos { top: 6px; }
+
+    /* ─ chips ─ */
+    .tl-chip {
+      width: 104px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      font-family: "Inter", "Noto Sans TC", sans-serif;
+      text-align: left;
+      cursor: default;
+    }
+
+    /* Date badge — only the date gets a background */
+    .chip-date {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+    }
+
+    .tl-chip.launched .chip-date {
+      background: rgba(75,191,169,0.22);
+      color: #1a7d6a;
+    }
+
+    .tl-chip.upcoming .chip-date {
+      background: rgba(123,75,179,0.15);
+      color: var(--purple);
+    }
+
+    /* Feature list — no background, plain text only */
+    .chip-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      background: transparent;
+    }
+
+    .chip-list li {
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1.55;
+      padding-left: 10px;
+      position: relative;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      background: transparent;
+    }
+
+    .chip-list li::before {
+      content: "-";
+      position: absolute;
+      left: 1px;
+      font-weight: 700;
+    }
+
+    .tl-chip.launched .chip-list li,
+    .tl-chip.launched .chip-list li::before { color: #2a9a80; }
+
+    .tl-chip.upcoming .chip-list li,
+    .tl-chip.upcoming .chip-list li::before { color: var(--purple); }
+
+    /* Legend */
+    .tl-legend {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--gray4);
+      justify-content: flex-end;
+    }
+
+    .leg-swatch {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    /* ── Filters ── */
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+
+    .filter-btn {
+      padding: 5px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--gray2);
+      background: white;
+      font-family: "Inter", "Noto Sans TC", sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--gray5);
+      transition: all 0.18s;
+    }
+
+    .filter-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .filter-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+    /* ── Table ── */
+    .features-table { width: 100%; border-collapse: collapse; }
+
+    .features-table th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray4);
+      border-bottom: 2px solid var(--gray2);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .features-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--gray1);
+      vertical-align: top;
+    }
+
+    .features-table tr:last-child td { border-bottom: none; }
+    .features-table tbody tr:hover td { background: #faf8fd; }
+    .feature-row.hidden { display: none; }
+
+    .f-name { font-weight: 700; font-size: 14px; color: var(--gray6); margin-bottom: 3px; }
+    .f-desc { font-size: 12px; color: var(--gray4); line-height: 1.45; }
+    .f-prog { font-size: 12px; color: var(--gray5); line-height: 1.45; }
+    .f-date { font-size: 12px; color: var(--gray5); white-space: nowrap; }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .badge-discussing { background: #F0F0F0; color: var(--gray4); }
+    .badge-confirmed  { background: #EBF3FB; color: var(--blue); }
+    .badge-developing { background: #F3EBF9; color: var(--purple); }
+
+    .pri { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .pri-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .pri-high { color: #d94f4f; } .pri-high .pri-dot { background: var(--red); }
+    .pri-mid  { color: #b08800; } .pri-mid  .pri-dot { background: var(--yellow); }
+    .pri-low  { color: #2a9a80; } .pri-low  .pri-dot { background: var(--green); }
+
+    @media (max-width: 768px) {
+      header { padding: 12px 16px; }
+      header h1 { font-size: 17px; }
+      main { padding: 16px 12px 32px; }
+      .stats-row { flex-wrap: wrap; }
+      .stat-card { min-width: calc(50% - 7px); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>AI Media 2026 Feature Roadmap</h1>
+  <div class="header-right" id="lastUpdated"></div>
+</header>
+
+<main>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="section-card">
+    <div class="section-title">📅 功能發展時間軸</div>
+    <div class="timeline-scroll">
+      <div class="tl-outer">
+        <div class="tl-above-zone" id="tlAbove"></div>
+        <div class="tl-axis-zone" id="tlAxis">
+          <div class="tl-axis-line"></div>
+        </div>
+        <div class="tl-below-zone" id="tlBelow"></div>
+      </div>
+    </div>
+    <div class="tl-legend">
+      <span>
+        <span class="leg-swatch" style="background:rgba(75,191,169,0.15);border:1px solid var(--green)"></span>已上線
+      </span>
+      <span>
+        <span class="leg-swatch" style="background:rgba(123,75,179,0.08);border:1px dashed var(--purple)"></span>預計上線
+      </span>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">📋 待上線功能列表</div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterFeatures('all', this)">全部</button>
+      <button class="filter-btn" onclick="filterFeatures('開發中', this)">⚡ 開發中</button>
+      <button class="filter-btn" onclick="filterFeatures('確認開發', this)">✅ 確認開發</button>
+      <button class="filter-btn" onclick="filterFeatures('討論中', this)">💬 討論中</button>
+    </div>
+    <table class="features-table">
+      <thead>
+        <tr>
+          <th style="width:28%">功能名稱 / 簡述</th>
+          <th style="width:11%">狀態</th>
+          <th style="width:28%">目前進度</th>
+          <th style="width:13%">預計上線</th>
+          <th style="width:10%">重要性</th>
+        </tr>
+      </thead>
+      <tbody id="featuresBody"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+// ================================================================
+// ▼▼▼ 設定區：Google Sheet ID 與分頁 GID ▼▼▼
+// ================================================================
+const SHEET_ID    = "1pzMFkZtVALaERdDOUsVJwTuoS81hbqCRxy1cifSxhGw";
+const LAUNCHED_GID  = "0";
+const UPCOMING_GID  = "498180179";
+
+// 哪些已上線日期要放在時間軸「上方」（視覺排版調整用）
+const ABOVE_DATES = new Set(["2026-03-18", "2026-04-30"]);
+// ================================================================
+// ▲▲▲ 設定區結束 ▲▲▲
+// ================================================================
+
+// ── CSV 讀取與解析 ──
+async function fetchCSV(gid) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
+}
+
+function parseCSV(text) {
+  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
+  return lines.map(line => {
+    const fields = [];
+    let cur = "", inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+      else if (c === ',' && !inQ) { fields.push(cur.trim()); cur = ""; }
+      else cur += c;
+    }
+    fields.push(cur.trim());
+    return fields;
+  });
+}
+
+function parseLaunched(csv) {
+  const groups = {};
+  parseCSV(csv).slice(1).forEach(([date, name]) => {
+    if (!date?.trim() || !name?.trim()) return;
+    const d = date.trim();
+    (groups[d] = groups[d] || []).push(name.trim());
+  });
+  return Object.entries(groups)
+    .map(([date, names]) => ({ date, names, above: ABOVE_DATES.has(date) }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function parseUpcoming(csv) {
+  const PRI = { "高": 0, "中": 1, "低": 2 };
+  return parseCSV(csv).slice(1)
+    .filter(r => r[0]?.trim())
+    .map(([name, description, status, progress, expectedDate, priority]) => ({
+      name:         (name || "").trim(),
+      description:  (description || "").trim(),
+      status:       (status || "").trim(),
+      progress:     (progress || "待更新").trim(),
+      expectedDate: (expectedDate || "TBD").trim(),
+      priority:     (priority || "中").trim(),
+    }))
+    .sort((a, b) => (PRI[a.priority] ?? 1) - (PRI[b.priority] ?? 1));
+}
+
+// ── Timeline 工具 ──
+const MONTHS    = ["Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const SPAN      = 10; // 11 months, 10 gaps; Feb=0%, Dec=100%
+const CUR_MONTH = new Date().getMonth() + 1;
+const CUR_YEAR  = new Date().getFullYear();
+
+function dateToPercent(dateStr) {
+  if (!dateStr || dateStr === "TBD") return null;
+  const m1 = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m1) {
+    const [yr, mo, day] = [+m1[1], +m1[2], +m1[3]];
+    if (yr !== 2026 || mo < 2 || mo > 12) return null;
+    return ((mo - 2) + (day - 1) / 30) / SPAN * 100;
+  }
+  const m3 = dateStr.match(/^(\d{4})-Q(\d)$/);
+  if (m3) {
+    const [yr, q] = [+m3[1], +m3[2]];
+    if (yr !== 2026) return null;
+    const idx = { 1:0, 2:3, 3:6, 4:9 }[q];
+    if (idx === undefined) return null;
+    return (idx + 0.5) / SPAN * 100;
+  }
+  const m2 = dateStr.match(/^(\d{4})-(\d{2})$/);
+  if (m2) {
+    const [yr, mo] = [+m2[1], +m2[2]];
+    if (yr !== 2026 || mo < 2 || mo > 12) return null;
+    return (mo - 2 + 0.5) / SPAN * 100;
+  }
+  return null;
+}
+
+function formatChipDate(dateStr) {
+  const m1 = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m1) return `${+m1[2]}/${m1[3]}`;
+  const m3 = dateStr.match(/^(\d{4})-Q(\d)$/);
+  if (m3) return `Q${m3[2]}`;
+  const m2 = dateStr.match(/^(\d{4})-(\d{2})$/);
+  if (m2) return `${+m2[2]}月`;
+  return dateStr;
+}
+
+function makeChip(type, dateStr, names) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "tl-chip-pos";
+  wrapper.style.left = dateToPercent(dateStr) + "%";
+  const items = names.map(n => `<li>${n}</li>`).join("");
+  wrapper.innerHTML = `<div class="tl-chip ${type}">
+    <div class="chip-date">${formatChipDate(dateStr)}</div>
+    <ul class="chip-list">${items}</ul>
+  </div>`;
+  return wrapper;
+}
+
+function layoutChipZone(containerEl, isAbove) {
+  const chips = Array.from(containerEl.querySelectorAll(".tl-chip-pos"));
+  if (!chips.length) return;
+  const W = containerEl.offsetWidth;
+  if (!W) return;
+  const CHIP_W = 112, GAP = 10;
+  chips.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
+  chips.forEach(el => { el.style.top = "0"; el.style.bottom = ""; });
+  const rowRightPx = [], rowMaxH = [];
+  chips.forEach(el => {
+    const pct = parseFloat(el.style.left);
+    const cx  = pct / 100 * W;
+    const le  = cx - CHIP_W / 2, re = cx + CHIP_W / 2;
+    const h   = el.offsetHeight || 72;
+    let row = rowRightPx.findIndex(r => r <= le);
+    if (row === -1) row = rowRightPx.length;
+    rowRightPx[row] = re;
+    rowMaxH[row] = Math.max(rowMaxH[row] || 0, h);
+    el.dataset.tlRow = row;
+  });
+  const rowOffset = [];
+  let cum = 6;
+  for (let i = 0; i < rowMaxH.length; i++) { rowOffset.push(cum); cum += rowMaxH[i] + GAP; }
+  chips.forEach(el => {
+    const row = parseInt(el.dataset.tlRow);
+    el.style.removeProperty("top"); el.style.removeProperty("bottom");
+    isAbove ? (el.style.bottom = rowOffset[row] + "px") : (el.style.top = rowOffset[row] + "px");
+  });
+  containerEl.style.height = Math.max(100, cum) + "px";
+}
+
+// ── Badge 工具 ──
+function statusBadge(s) {
+  const cls = s === "討論中" ? "badge-discussing" : s === "確認開發" ? "badge-confirmed" : "badge-developing";
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+function priorityBadge(p) {
+  const cls = p === "高" ? "pri-high" : p === "中" ? "pri-mid" : "pri-low";
+  return `<span class="pri ${cls}"><span class="pri-dot"></span>${p}</span>`;
+}
+
+function filterFeatures(status, btn) {
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".feature-row").forEach(row => {
+    row.classList.toggle("hidden", status !== "all" && row.dataset.status !== status);
+  });
+}
+
+// ── 主流程 ──
+async function init() {
+  document.getElementById("lastUpdated").innerHTML = "資料載入中…";
+
+  let launchedGroups, upcomingFeatures;
+  try {
+    const [csv1, csv2] = await Promise.all([fetchCSV(LAUNCHED_GID), fetchCSV(UPCOMING_GID)]);
+    launchedGroups   = parseLaunched(csv1);
+    upcomingFeatures = parseUpcoming(csv2);
+  } catch (e) {
+    document.getElementById("lastUpdated").innerHTML = `⚠️ 載入失敗，請重新整理`;
+    console.error(e);
+    return;
+  }
+
+  // 更新時間顯示（頁面開啟時間）
+  const now = new Date();
+  document.getElementById("lastUpdated").innerHTML =
+    `資料更新時間<br>${now.toLocaleDateString("zh-TW")} ${now.toLocaleTimeString("zh-TW", {hour:"2-digit", minute:"2-digit"})}`;
+
+  // ── Stats ──
+  const nLaunched   = launchedGroups.reduce((s, g) => s + g.names.length, 0);
+  const nDeveloping = upcomingFeatures.filter(f => f.status === "開發中").length;
+  const nConfirmed  = upcomingFeatures.filter(f => f.status === "確認開發").length;
+  const nDiscuss    = upcomingFeatures.filter(f => f.status === "討論中").length;
+
+  document.getElementById("statsRow").innerHTML = `
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--green)">${nLaunched}</div>
+      <div class="stat-label">已上線功能</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--purple)">${nDeveloping}</div>
+      <div class="stat-label">開發中</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--blue)">${nConfirmed}</div>
+      <div class="stat-label">確認開發</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--gray4)">${nDiscuss}</div>
+      <div class="stat-label">討論中</div>
+    </div>
+  `;
+
+  // ── 月份刻度 ──
+  const axisEl = document.getElementById("tlAxis");
+  MONTHS.forEach((mon, i) => {
+    const pct = (i / SPAN) * 100;
+    const isCurrent = (i + 2 === CUR_MONTH && CUR_YEAR === 2026);
+    const tg = document.createElement("div");
+    tg.className = "tl-tick-group";
+    tg.style.left = pct + "%";
+    tg.innerHTML = `<div class="tl-tick"></div>
+      <div class="tl-month-lbl" style="${isCurrent ? "color:#FF7F7D;" : ""}">${mon}${isCurrent ? " ▶" : ""}</div>`;
+    axisEl.appendChild(tg);
+  });
+
+  // ── 已上線 chips ──
+  const belowEl = document.getElementById("tlBelow");
+  const aboveEl = document.getElementById("tlAbove");
+  launchedGroups.forEach(g => {
+    if (dateToPercent(g.date) === null) return;
+    (g.above ? aboveEl : belowEl).appendChild(makeChip("launched", g.date, g.names));
+  });
+
+  // ── 預計上線 chips ──
+  const upcomingByDate = {};
+  upcomingFeatures
+    .filter(f => f.status !== "討論中" && f.expectedDate !== "TBD")
+    .forEach(f => { (upcomingByDate[f.expectedDate] = upcomingByDate[f.expectedDate] || []).push(f.name); });
+  Object.entries(upcomingByDate).forEach(([date, names]) => {
+    if (dateToPercent(date) === null) return;
+    aboveEl.appendChild(makeChip("upcoming", date, names));
+  });
+
+  // ── Collision avoidance ──
+  requestAnimationFrame(() => {
+    layoutChipZone(belowEl, false);
+    layoutChipZone(aboveEl, true);
+  });
+  window.addEventListener("resize", () => {
+    layoutChipZone(belowEl, false);
+    layoutChipZone(aboveEl, true);
+  });
+
+  // ── 功能列表 ──
+  const tbody = document.getElementById("featuresBody");
+  upcomingFeatures.forEach(f => {
+    const tr = document.createElement("tr");
+    tr.className = "feature-row";
+    tr.dataset.status = f.status;
+    tr.innerHTML = `
+      <td><div class="f-name">${f.name}</div><div class="f-desc">${f.description}</div></td>
+      <td>${statusBadge(f.status)}</td>
+      <td><div class="f-prog">${f.progress}</div></td>
+      <td><span class="f-date">${f.expectedDate}</span></td>
+      <td>${priorityBadge(f.priority)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>
