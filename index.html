@@ -423,10 +423,13 @@ function parseCSV(text) {
 
 function parseLaunched(csv) {
   const groups = {};
-  parseCSV(csv).slice(1).forEach(([date, name]) => {
-    if (!date?.trim() || !name?.trim()) return;
-    const d = date.trim();
-    (groups[d] = groups[d] || []).push(name.trim());
+  parseCSV(csv).slice(1).forEach(fields => {
+    // 自動偵測：若第一欄空白則跳過（Google Sheet 有時有空白首欄）
+    const offset = fields[0]?.trim() ? 0 : 1;
+    const date = (fields[offset] || "").trim();
+    const name = (fields[offset + 1] || "").trim();
+    if (!date || !name) return;
+    (groups[date] = groups[date] || []).push(name);
   });
   return Object.entries(groups)
     .map(([date, names]) => ({ date, names, above: ABOVE_DATES.has(date) }))
@@ -436,15 +439,21 @@ function parseLaunched(csv) {
 function parseUpcoming(csv) {
   const PRI = { "高": 0, "中": 1, "低": 2 };
   return parseCSV(csv).slice(1)
-    .filter(r => r[0]?.trim())
-    .map(([name, description, status, progress, expectedDate, priority]) => ({
-      name:         (name || "").trim(),
-      description:  (description || "").trim(),
-      status:       (status || "").trim(),
-      progress:     (progress || "待更新").trim(),
-      expectedDate: (expectedDate || "TBD").trim(),
-      priority:     (priority || "中").trim(),
-    }))
+    .filter(r => r.some(f => f?.trim()))
+    .map(fields => {
+      // 自動偵測：若第一欄空白則跳過（Google Sheet 有時有空白首欄）
+      const offset = fields[0]?.trim() ? 0 : 1;
+      const [name, description, status, progress, expectedDate, priority] = fields.slice(offset);
+      return {
+        name:         (name || "").trim(),
+        description:  (description || "").trim(),
+        status:       (status || "").trim(),
+        progress:     (progress || "待更新").trim(),
+        expectedDate: (expectedDate || "TBD").trim(),
+        priority:     (priority || "中").trim(),
+      };
+    })
+    .filter(f => f.name)
     .sort((a, b) => (PRI[a.priority] ?? 1) - (PRI[b.priority] ?? 1));
 }
 
