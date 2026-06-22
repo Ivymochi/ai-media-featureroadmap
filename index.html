@@ -455,7 +455,13 @@ function parseUpcoming(csv) {
       };
     })
     .filter(f => f.name)
-    .sort((a, b) => (PRI[a.priority] ?? 1) - (PRI[b.priority] ?? 1));
+    .sort((a, b) => {
+      const STATUS = { "確認開發": 0, "討論中": 1, "討論後不開發": 2 };
+      const PRI    = { "高": 0, "中": 1, "低": 2 };
+      const sd = (STATUS[a.status] ?? 1) - (STATUS[b.status] ?? 1);
+      if (sd !== 0) return sd;
+      return (PRI[a.priority] ?? 1) - (PRI[b.priority] ?? 1);
+    });
 }
 
 // ── Timeline 工具 ──
