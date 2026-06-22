@@ -303,6 +303,7 @@
 
     .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
     .badge-discussing { background: #F0F0F0; color: var(--gray4); }
+    .badge-dropped   { background: #FDECEA; color: #B94040; }
     .badge-confirmed  { background: #EBF3FB; color: var(--blue); }
     .badge-developing { background: #F3EBF9; color: var(--purple); }
 
@@ -360,6 +361,7 @@
       <button class="filter-btn" onclick="filterFeatures('開發中', this)">⚡ 開發中</button>
       <button class="filter-btn" onclick="filterFeatures('確認開發', this)">✅ 確認開發</button>
       <button class="filter-btn" onclick="filterFeatures('討論中', this)">💬 討論中</button>
+      <button class="filter-btn" onclick="filterFeatures('討論後不開發', this)">🚫 討論後不開發</button>
     </div>
     <table class="features-table">
       <thead>
@@ -368,7 +370,6 @@
           <th style="width:11%">狀態</th>
           <th style="width:28%">目前進度</th>
           <th style="width:13%">預計上線</th>
-          <th style="width:10%">重要性</th>
         </tr>
       </thead>
       <tbody id="featuresBody"></tbody>
@@ -543,7 +544,10 @@ function layoutChipZone(containerEl, isAbove) {
 
 // ── Badge 工具 ──
 function statusBadge(s) {
-  const cls = s === "討論中" ? "badge-discussing" : s === "確認開發" ? "badge-confirmed" : "badge-developing";
+  const cls = s === "討論中" ? "badge-discussing"
+            : s === "確認開發" ? "badge-confirmed"
+            : s === "討論後不開發" ? "badge-dropped"
+            : "badge-developing";
   return `<span class="badge ${cls}">${s}</span>`;
 }
 function priorityBadge(p) {
@@ -656,7 +660,6 @@ async function init() {
       <td>${statusBadge(f.status)}</td>
       <td><div class="f-prog">${f.progress}</div></td>
       <td><span class="f-date">${f.expectedDate}</span></td>
-      <td>${priorityBadge(f.priority)}</td>
     `;
     tbody.appendChild(tr);
   });
